@@ -1,0 +1,25 @@
+{
+    "name": "flagbit/large-configurable-products",
+    "description": "magento 2 module to paginate variations of a large configurable product, letting them be loaded on the client. ^[[C",
+    "require": {
+        "php": "~7.1.3||~7.2.0||~7.3.0||~7.4.0",
+        "magento/module-configurable-product": "^100.3.3"
+    },
+    "type": "magento2-module",
+    "license": "proprietary",
+    "authors": [
+        {
+            "name": "Oleg Zaiats",
+            "email": "oleg.zaiats@flagbit.de"
+        }
+    ],
+    "minimum-stability": "stable",
+    "autoload": {
+        "files": [
+            "registration.php"
+        ],
+        "psr-4": {
+            "Flagbit\\LargeConfigurableProducts\\": ""
+        }
+    }
+}
