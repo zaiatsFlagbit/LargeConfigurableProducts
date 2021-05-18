@@ -11,6 +11,7 @@ use Flagbit\LargeConfigurableProducts\Api\Data\LocatorRestInterface;
 use Magento\Catalog\Api\Data\ProductInterface;
 use Magento\Catalog\Api\ProductRepositoryInterface;
 use Magento\Catalog\Model\Product\Attribute\Backend\Sku;
+use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Store\Api\Data\StoreInterface;
 use Magento\Store\Model\StoreManagerInterface;
 
@@ -65,6 +66,7 @@ class RestLocator implements LocatorRestInterface
 
     /**
      * {@inheritDoc}
+     * @throws NoSuchEntityException
      */
     public function getProduct(): ProductInterface
     {
@@ -82,6 +84,7 @@ class RestLocator implements LocatorRestInterface
 
     /**
      * {@inheritDoc}
+     * @throws NoSuchEntityException
      */
     public function getStore()
     {
@@ -93,6 +96,7 @@ class RestLocator implements LocatorRestInterface
 
     /**
      * {@inheritDoc}
+     * @throws NoSuchEntityException
      */
     public function getWebsiteIds()
     {
@@ -101,6 +105,7 @@ class RestLocator implements LocatorRestInterface
 
     /**
      * {@inheritDoc}
+     * @throws NoSuchEntityException
      */
     public function getBaseCurrencyCode()
     {

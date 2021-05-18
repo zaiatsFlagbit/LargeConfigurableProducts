@@ -9,6 +9,6 @@ namespace Flagbit\LargeConfigurableProducts;
 
 class Config
 {
-    public const INITIAL_OFFSET = 0;
-    public const INITIAL_SIZE = 100;
+    public const INITAL_OFFSET = 0;
+    public const INITAL_SIZE = 100;
 }
