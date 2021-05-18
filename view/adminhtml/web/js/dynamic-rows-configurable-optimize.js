@@ -8,13 +8,15 @@ define(['jquery'], function ($) {
 
         let mixin = {
             /**
-             /* @TODO - admin user must pick a DataSet himself,
+             /* @TODO - get endpoint from php setup
+             /* admin user must pick a DataSet himself,
              /* from an input
              */
             defaults: {
-                pageSize: 20,
+                assocProdIDs: 'data.assoc_prod_ids',
+                pageSize: 5,
                 endpoint: '/rest/all/V1/product-matrix',
-                dataSet: 100,
+                dataSet: 100, // move abstract config
                 realPages: 1
             },
 
@@ -34,7 +36,7 @@ define(['jquery'], function ($) {
                     }, this) : data;
 
                 this.realPages = Math.ceil(this.relatedData.length / this.pageSize) || 1;
-                fakePages = Math.ceil(this.source.get('data.variations_total') / this.pageSize) || 1;
+                fakePages = Math.ceil(this.source.get('data.assoc_prod_total') / this.pageSize) || 1;
 
                 this.pages(fakePages);
             },
@@ -57,7 +59,7 @@ define(['jquery'], function ($) {
             /**
              * Add loaded variations to dataSource
              *
-             * @param {Array} variations - product matrix paginated from server
+             * @param {Array} nextVariations - product matrix paginated from server
              * @returns void
              */
             addBulkVariations: function (nextVariations) {
@@ -67,6 +69,16 @@ define(['jquery'], function ($) {
                     underlyingRecords.push(variation);
                 }
                 this.recordData.valueHasMutated();
+            },
+
+            /**
+             * Generate associated products
+             *
+             * @returns void
+             */
+            generateAssociatedProducts: function () {
+                let productsIds = this.source.get(`${this.assocProdIDs}`);
+                this.source.set(this.dataScopeAssociatedProduct, productsIds);
             },
 
             /**
@@ -96,7 +108,7 @@ define(['jquery'], function ($) {
                 if ((page - this.realPages) > 0) {
                     let variationsMissing = (page * this.pageSize) - this.recordData().length;
                     let data = this._getData();
-                    data['length'] = variationsMissing > this.dataSet ? variationsMissing : this.dataSet;
+                    data['limit'] = variationsMissing > this.dataSet ? variationsMissing : this.dataSet;
                     this.showNextVariations(
                         this.getNextVariations(data),
                         page
@@ -169,7 +181,7 @@ define(['jquery'], function ($) {
              */
             _getData: function () {
                 let dataLimit,
-                    recordsLeft = this.source.get('data.variations_total') - this.getRecordCount(),
+                    recordsLeft = this.source.get('data.assoc_prod_total') - this.getRecordCount(),
                     limitReached = this.getRecordCount() > recordsLeft;
 
                 if (limitReached) {
@@ -181,7 +193,7 @@ define(['jquery'], function ($) {
                 return {
                     sku: this.source.get('data.product.sku'),
                     offset: this.getRecordCount(),
-                    length: dataLimit
+                    limit: dataLimit
                 };
             },
 
@@ -190,7 +202,7 @@ define(['jquery'], function ($) {
              * @returns {Boolean}
              */
             _isSourceFull: function () {
-                return this.getRecordCount() === this.source.get('data.variations_total');
+                return this.getRecordCount() === this.source.get('data.assoc_prod_total');
             }
         };
 
