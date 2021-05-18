@@ -7,7 +7,6 @@ declare(strict_types=1);
 
 namespace Flagbit\LargeConfigurableProducts\Api\Data;
 
-
 use Magento\Catalog\Model\Product\Attribute\Backend\Sku;
 
 interface AssociationProductsPaginationInterface
@@ -15,8 +14,12 @@ interface AssociationProductsPaginationInterface
     /**
      * @return int
      */
-    public function getVariationsTotal(): int;
+    public function getAssociatedProductsTotal(): int;
 
+    /**
+     * @return array
+     */
+    public function getAssociatedProductsIDs(): array;
 
     /**
      * @param Sku $sku
@@ -30,12 +33,10 @@ interface AssociationProductsPaginationInterface
      */
     public function setPaginationOffset($offset): void;
 
-
     /**
-     * @param int $length
+     * @param int $limit
      * @return void
      *
      */
-    public function setPaginationLength($length): void;
-
+    public function setPaginationLimit($limit): void;
 }

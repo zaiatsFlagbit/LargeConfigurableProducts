@@ -41,6 +41,7 @@ class ModifierAdvanced extends Composite
      */
     private $modifiersObjects = [];
 
+
     public function __construct(
         LocatorInterface $locator,
         ObjectManagerInterface $objectManager,
@@ -73,7 +74,8 @@ class ModifierAdvanced extends Composite
 
             if ($productTypeId === ConfigurableType::TYPE_CODE) {
                 $data[$productId]['configurable-matrix'] = $this->associatedProducts->getProductMatrix();
-                $data[$productId]['variations_total'] = $this->associatedProducts->getVariationsTotal();
+                $data[$productId]['assoc_prod_total'] = $this->associatedProducts->getAssociatedProductsTotal();
+                $data[$productId]['assoc_prod_ids'] = $this->associatedProducts->getAssociatedProductsIDs();
                 $data[$productId]['attributes'] = $this->associatedProducts->getProductAttributesIds();
                 $data[$productId]['attribute_codes'] = $this->associatedProducts->getProductAttributesCodes();
                 $data[$productId]['product']['configurable_attributes_data'] =

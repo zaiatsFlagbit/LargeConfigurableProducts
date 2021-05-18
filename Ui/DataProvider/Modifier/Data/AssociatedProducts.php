@@ -9,8 +9,10 @@ namespace Flagbit\LargeConfigurableProducts\Ui\DataProvider\Modifier\Data;
 
 use Flagbit\LargeConfigurableProducts\Api\Data\AssociationProductsPaginationInterface;
 use Flagbit\LargeConfigurableProducts\Config;
+use Magento\Catalog\Model\Product;
 use Magento\Catalog\Model\Product\Attribute\Backend\Sku;
 use Magento\ConfigurableProduct\Ui\DataProvider\Product\Form\Modifier\Data\AssociatedProducts as AssociatedProductsBase;
+use Magento\Framework\Exception\NoSuchEntityException;
 
 class AssociatedProducts extends AssociatedProductsBase implements AssociationProductsPaginationInterface
 {
@@ -20,21 +22,34 @@ class AssociatedProducts extends AssociatedProductsBase implements AssociationPr
     private $offset;
 
     /**
-     * @var int $length
+     * @var array $assoc_prod_ids
      */
-    private $length;
+    private $associatedProductsIDs;
+
+    /**
+     * @var int $limit
+     */
+    private $limit;
 
     /**
      * @var int $variationsTotal
      */
-    private $variationTotal;
+    private $associatedProductsTotal;
 
     /**
-     * @return  int $variationsTotal
+     * @return  int $associatedProductsTotal
      */
-    public function getVariationsTotal(): int
+    public function getAssociatedProductsTotal(): int
     {
-        return $this->variationTotal;
+        return $this->associatedProductsTotal;
+    }
+
+    /**
+     * @return  array $associatedProductsIDs
+     */
+    public function getAssociatedProductsIDs(): array
+    {
+        return $this->associatedProductsIDs;
     }
 
     /**
@@ -42,7 +57,7 @@ class AssociatedProducts extends AssociatedProductsBase implements AssociationPr
      */
     public function getOffset(): int
     {
-        return $this->offset ?? Config::INITIAL_OFFSET;
+        return $this->offset ?? Config::INITAL_OFFSET;
     }
 
     /**
@@ -50,15 +65,7 @@ class AssociatedProducts extends AssociatedProductsBase implements AssociationPr
      */
     public function getSize(): int
     {
-        return $this->length ?? Config::INITIAL_SIZE;
-    }
-
-    /**
-     * @return int
-     */
-    public function getRequestVariationCount(): int
-    {
-        return $this->getSize() + $this->getOffset();
+        return $this->limit ?? Config::INITAL_SIZE;
     }
 
     /**
@@ -74,34 +81,52 @@ class AssociatedProducts extends AssociatedProductsBase implements AssociationPr
      * @param int $offset
      * @return void
      */
-    public function setPaginationOffset($offset = Config::INITIAL_OFFSET): void
+    public function setPaginationOffset($offset = Config::INITAL_OFFSET): void
     {
         $this->offset = $offset;
     }
 
     /**
-     * @param int $length
+     * @param int $limit
      * @return void
      * @TODO create an input for admin user, for configuration speed/quantity
      *
      */
-    public function setPaginationLength($length = Config::INITIAL_SIZE): void
+    public function setPaginationLimit($limit = Config::INITAL_SIZE): void
     {
-        $this->length = $length;
+        $this->limit = $limit;
     }
 
     /**
-     * Retrieve all possible attribute values combinations
+     * Retrieve actual list of associated products (i.e. if product contains variations matrix form data
+     * - previously saved in database relations are not considered)
      *
-     * @return array
+     * @return Product[]
      */
-    protected function getVariations(): array
+    protected function _getAssociatedProducts(): array
     {
-        $variations = $this->variationMatrix->getVariations($this->getAttributes());
-        $this->variationTotal = count($variations);
-        if ($this->getRequestVariationCount() < $this->variationTotal) {
-            return array_slice($variations, $this->getOffset(), $this->getSize());
+        $products = [];
+        $configurable = $this->locator->getProduct();
+        $ids = $this->locator->getProduct()->getAssociatedProductIds();
+        if ($ids === null) {
+            // form data overrides any relations stored in database
+            $products = $configurable
+                ->getTypeInstance()
+                ->getUsedProducts($configurable);
+            foreach ($products as $child) {
+                $ids[] = $child->getEntityId();
+            }
         }
-        return $variations;
+        foreach ($ids as $productId) {
+            try {
+                $products[] = $this->productRepository->getById($productId);
+            } catch (NoSuchEntityException $e) {
+                continue;
+            }
+        }
+
+        $this->associatedProductsTotal = count($products);
+        $this->associatedProductsIDs = $ids;
+        return array_slice($products, $this->getOffset(), $this->getSize());
     }
 }

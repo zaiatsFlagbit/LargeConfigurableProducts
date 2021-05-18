@@ -12,9 +12,9 @@ interface ProductMatrixInterface
     /**
      * @param string $sku
      * @param int $offset
-     * @param int $length
+     * @param int $limit
      * @return array
      */
-    public function getProductMatrixPaginated($sku, $offset, $length): array;
+    public function getProductMatrixPaginated($sku, $offset, $limit): array;
 
 }
